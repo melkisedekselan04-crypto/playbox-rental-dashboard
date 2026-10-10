@@ -267,6 +267,7 @@
       let rentals = [];
       let currentTab = 'active';
       let currentEditId = null;
+      let supabaseSubscription = null;
 
       function normalizeRental(row) {
         return {
@@ -306,18 +307,50 @@
         return !!supabase;
       }
 
+      function subscribeToRentals() {
+        if (!isSupabaseEnabled()) return;
+
+        if (supabaseSubscription) {
+          supabase.removeChannel(supabaseSubscription);
+        }
+
+        supabaseSubscription = supabase
+          .channel('rentals-sync')
+          .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'rentals' },
+            (payload) => {
+              const record = payload.new ?? payload.old;
+
+              if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+                const normalized = normalizeRental(record);
+                const index = rentals.findIndex((item) => String(item.id) === String(normalized.id));
+                if (index >= 0) {
+                  rentals[index] = normalized;
+                } else {
+                  rentals.unshift(normalized);
+                }
+              }
+
+              if (payload.eventType === 'DELETE' && record) {
+                rentals = rentals.filter((item) => String(item.id) !== String(record.id));
+              }
+
+              renderTable();
+              updateStats();
+            }
+          )
+          .subscribe();
+      }
+
       async function loadRentals() {
         if (isSupabaseEnabled()) {
           try {
             const { data, error } = await supabase.from('rentals').select('*').order('created_at', { ascending: false });
-            if (!error && data) {
-              rentals = data.map(normalizeRental);
-            } else {
-              console.error('Supabase fetch error:', error);
-              rentals = [];
-            }
+            if (error) throw error;
+            rentals = (data || []).map(normalizeRental);
           } catch (error) {
-            console.error('Supabase unavailable:', error);
+            console.error('Supabase fetch error:', error);
             rentals = [];
           }
         } else {
@@ -334,21 +367,30 @@
 
         renderTable();
         updateStats();
+        subscribeToRentals();
       }
 
       async function syncToSupabase() {
         if (!isSupabaseEnabled()) return;
-        const payload = rentals.map(toSupabaseRow);
 
-        const { error } = await supabase.from('rentals').upsert(payload, { onConflict: 'id' });
-        if (error) {
+        try {
+          const payload = rentals.map(toSupabaseRow);
+          const { error } = await supabase.from('rentals').upsert(payload, { onConflict: 'id' });
+          if (error) throw error;
+        } catch (error) {
           console.error('Gagal sinkron ke Supabase:', error);
         }
       }
 
       function saveDataLocal() {
+        if (isSupabaseEnabled()) {
+          localStorage.setItem(storageKey, JSON.stringify(rentals));
+          syncToSupabase();
+          updateStats();
+          return;
+        }
+
         localStorage.setItem(storageKey, JSON.stringify(rentals));
-        syncToSupabase();
         updateStats();
       }
 
