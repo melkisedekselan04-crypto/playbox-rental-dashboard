@@ -1,2 +1,679 @@
-# playbox-rental-dashboard
-Playbox rental dashboard for managing console rentals with backup/import features and activity tracking.
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Playbox Rental Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #020617;
+        color: #f8fafc;
+      }
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0f172a;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #475569;
+      }
+      .glass-panel {
+        background: rgba(15, 23, 42, 0.7);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(51, 65, 85, 0.5);
+      }
+      .tab-active {
+        border-bottom: 2px solid #818cf8;
+        color: #818cf8;
+        font-weight: 600;
+      }
+      .tab-inactive {
+        color: #64748b;
+        border-bottom: 2px solid transparent;
+      }
+      .tab-inactive:hover {
+        color: #cbd5e1;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen text-slate-200 p-4 md:p-6 lg:p-8">
+    <div class="max-w-6xl mx-auto space-y-6">
+      <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900/50 p-5 border border-slate-800 rounded-2xl">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/20">
+            <i class="fa-solid fa-gamepad text-2xl text-white"></i>
+          </div>
+          <div>
+            <h1 class="text-xl font-bold text-white tracking-tight">Playbox Rental Dashboard</h1>
+            <p class="text-sm text-slate-400">Pusat Data & Manajemen Unit Sewa</p>
+          </div>
+        </div>
+        <div class="flex gap-2 w-full md:w-auto">
+          <button onclick="exportData()" class="flex-1 md:flex-none px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium rounded-xl transition flex items-center justify-center gap-2 border border-slate-700">
+            <i class="fa-solid fa-download"></i> Backup
+          </button>
+          <button onclick="document.getElementById('importFile').click()" class="flex-1 md:flex-none px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium rounded-xl transition flex items-center justify-center gap-2 border border-slate-700">
+            <i class="fa-solid fa-upload"></i> Import
+          </button>
+          <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(event)" />
+        </div>
+      </header>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="glass-panel p-5 rounded-2xl flex justify-between items-center relative overflow-hidden">
+          <div class="relative z-10">
+            <p class="text-xs font-medium text-slate-400 mb-1">TOTAL ARMADA</p>
+            <h2 class="text-3xl font-bold text-white">2 <span class="text-sm font-normal text-slate-500">Unit</span></h2>
+            <p class="text-[11px] text-slate-500 mt-1">PS 4 Slim 1TB & PS 3</p>
+          </div>
+          <div class="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center z-10 border border-slate-700">
+            <i class="fa-solid fa-box text-slate-400"></i>
+          </div>
+          <i class="fa-solid fa-box absolute -right-4 -bottom-4 text-7xl text-slate-800/30"></i>
+        </div>
+
+        <div class="glass-panel p-5 rounded-2xl flex justify-between items-center relative overflow-hidden">
+          <div class="relative z-10">
+            <p class="text-xs font-medium text-emerald-400 mb-1">UNIT SEDANG DISEWA</p>
+            <h2 class="text-3xl font-bold text-white" id="statActive">0</h2>
+            <p class="text-[11px] text-slate-500 mt-1">Aktif di luar</p>
+          </div>
+          <div class="w-12 h-12 bg-emerald-900/30 rounded-full flex items-center justify-center z-10 border border-emerald-800/50">
+            <i class="fa-solid fa-truck-fast text-emerald-500"></i>
+          </div>
+          <i class="fa-solid fa-truck-fast absolute -right-4 -bottom-4 text-7xl text-emerald-900/10"></i>
+        </div>
+
+        <div class="glass-panel p-5 rounded-2xl flex justify-between items-center relative overflow-hidden">
+          <div class="relative z-10">
+            <p class="text-xs font-medium text-indigo-400 mb-1">TOTAL PENDAPATAN (Bulan Ini)</p>
+            <h2 class="text-2xl font-bold text-white" id="statIncome">Rp 0</h2>
+            <p class="text-[11px] text-slate-500 mt-1">Estimasi kotor</p>
+          </div>
+          <div class="w-12 h-12 bg-indigo-900/30 rounded-full flex items-center justify-center z-10 border border-indigo-800/50">
+            <i class="fa-solid fa-wallet text-indigo-400"></i>
+          </div>
+          <i class="fa-solid fa-wallet absolute -right-4 -bottom-4 text-7xl text-indigo-900/10"></i>
+        </div>
+      </div>
+
+      <main class="glass-panel rounded-2xl border border-slate-800 overflow-hidden shadow-2xl">
+        <div class="p-5 border-b border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900/80">
+          <div>
+            <h2 class="text-lg font-bold text-white">Data Transaksi Sewa</h2>
+            <p class="text-xs text-slate-400">Kelola pelanggan, durasi, dan status unit</p>
+          </div>
+          <div class="flex items-center gap-3 w-full md:w-auto">
+            <div class="relative flex-1 md:w-64">
+              <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 text-sm"></i>
+              <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="Cari nama pelanggan..." class="w-full bg-slate-950 border border-slate-700 pl-9 pr-4 py-2 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition text-slate-200" />
+            </div>
+            <button onclick="openAddModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-lg shadow-indigo-600/20 whitespace-nowrap flex items-center gap-2">
+              <i class="fa-solid fa-plus"></i> <span class="hidden sm:inline">Sewa Baru</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex px-5 pt-3 bg-slate-900/40 border-b border-slate-800">
+          <button onclick="switchTab('active')" id="tab-active" class="px-4 py-2 text-sm transition-colors duration-200 tab-active flex items-center gap-2">
+            <i class="fa-solid fa-clock-rotate-left"></i> Sedang Disewa
+          </button>
+          <button onclick="switchTab('history')" id="tab-history" class="px-4 py-2 text-sm transition-colors duration-200 tab-inactive flex items-center gap-2">
+            <i class="fa-solid fa-check-double"></i> Riwayat (Selesai)
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse min-w-[800px]">
+            <thead>
+              <tr class="bg-slate-900/80 text-xs text-slate-400 border-b border-slate-800">
+                <th class="p-4 font-medium w-1/4">PELANGGAN & KONTAK</th>
+                <th class="p-4 font-medium w-1/5">UNIT PLAYBOX</th>
+                <th class="p-4 font-medium w-1/4">WAKTU & DURASI</th>
+                <th class="p-4 font-medium w-1/6">TOTAL BIAYA</th>
+                <th class="p-4 font-medium text-center">AKSI</th>
+              </tr>
+            </thead>
+            <tbody id="rentalTableBody" class="divide-y divide-slate-800/50 bg-slate-900/20"></tbody>
+          </table>
+
+          <div id="emptyState" class="hidden flex flex-col items-center justify-center py-12 text-center">
+            <div class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-4">
+              <i class="fa-solid fa-folder-open text-2xl text-slate-500"></i>
+            </div>
+            <h3 class="text-slate-300 font-medium mb-1">Tidak ada data</h3>
+            <p class="text-slate-500 text-sm max-w-xs">Belum ada transaksi di kategori ini. Klik "Sewa Baru" untuk mencatat.</p>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <div id="rentalModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 overflow-y-auto">
+      <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl shadow-2xl relative my-8" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center p-5 border-b border-slate-800">
+          <h3 id="modalTitleText" class="text-lg font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-file-signature text-indigo-400"></i> Catat Penyewa Baru
+          </h3>
+          <button onclick="closeAddModal()" class="text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 w-8 h-8 rounded-full flex items-center justify-center transition">
+            <i class="fa-solid fa-times"></i>
+          </button>
+        </div>
+
+        <div class="p-5 overflow-y-auto max-h-[75vh]">
+          <form id="rentalForm" class="space-y-5" onsubmit="saveRental(event)">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1.5">Nama Penyewa</label>
+                <input type="text" id="custName" required placeholder="Contoh: Budi Santoso" class="w-full bg-slate-950 border border-slate-700 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition text-white placeholder-slate-600" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1.5">Nomor WhatsApp</label>
+                <div class="relative">
+                  <i class="fa-brands fa-whatsapp absolute left-3 top-1/2 transform -translate-y-1/2 text-emerald-500 text-lg"></i>
+                  <input type="tel" id="custPhone" required placeholder="08123456789" class="w-full bg-slate-950 border border-slate-700 pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition text-white placeholder-slate-600" />
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1.5">Pilih Unit Armada</label>
+                <select id="unitSelect" onchange="updateFormLogic()" class="w-full bg-slate-950 border border-slate-700 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition text-white appearance-none">
+                  <option value="PS 4 Slim 1TB">PS 4 Slim 1TB</option>
+                  <option value="PS 3">PS 3</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1.5">Pilihan Sewa</label>
+                <select id="packageSelect" onchange="updateFormLogic()" class="w-full bg-slate-950 border border-slate-700 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition text-white appearance-none">
+                  <option value="custom">Bebas (Dihitung Per Jam)</option>
+                  <option value="12">Paket 12 Jam</option>
+                  <option value="24">Paket 24 Jam</option>
+                </select>
+              </div>
+            </div>
+
+            <hr class="border-slate-800/60" />
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1.5">Waktu Mulai Pinjam</label>
+                <input type="datetime-local" id="startTime" onchange="updateFormLogic()" required class="w-full bg-slate-950 border border-slate-700 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition text-white" style="color-scheme: dark;" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1.5">Durasi (Jam) <span class="text-indigo-400">*</span></label>
+                <input type="number" id="durationHours" min="1" value="1" oninput="updateFormLogic()" required placeholder="Contoh: 4" class="w-full bg-slate-950 border border-slate-700 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition text-white" />
+              </div>
+            </div>
+
+            <div class="bg-slate-950/50 border border-slate-800 p-4 rounded-xl grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-500 mb-1 tracking-wide uppercase">Estimasi Kembali (Otomatis)</label>
+                <input type="datetime-local" id="returnTime" required class="w-full bg-transparent border-0 px-0 py-1 text-sm text-amber-400 font-medium focus:outline-none focus:ring-0" style="color-scheme: dark;" readonly tabindex="-1" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-500 mb-1 tracking-wide uppercase">Total Biaya (Bisa diedit)</label>
+                <div class="relative">
+                  <span class="absolute left-0 top-1/2 transform -translate-y-1/2 text-slate-500 text-sm font-bold">Rp</span>
+                  <input type="number" id="rentalPrice" required class="w-full bg-transparent border-0 pl-6 pr-0 py-1 text-lg text-emerald-400 font-bold focus:outline-none focus:ring-0" />
+                </div>
+              </div>
+            </div>
+
+            <hr class="border-slate-800/60" />
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1.5">Jaminan Ditahan</label>
+                <select id="collateralSelect" class="w-full bg-slate-950 border border-slate-700 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition text-white appearance-none">
+                  <option value="KTP Asli">KTP Asli</option>
+                  <option value="KTM Asli">KTM Asli (Kartu Mahasiswa)</option>
+                  <option value="SIM Asli">SIM Asli</option>
+                  <option value="Lainnya">Lainnya / Uang Deposit</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1.5">Foto Dokumen Jaminan (Opsional)</label>
+                <div class="relative">
+                  <input type="file" id="collateralImage" accept="image/*" class="w-full text-sm text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-300 hover:file:bg-slate-700 transition cursor-pointer" />
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="p-5 border-t border-slate-800 flex justify-end gap-3 bg-slate-900/80 rounded-b-2xl">
+          <button onclick="closeAddModal()" class="px-5 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800 transition">Batal</button>
+          <button id="modalSubmitBtn" onclick="document.getElementById('rentalForm').requestSubmit()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-medium transition shadow-lg shadow-indigo-600/20 flex items-center gap-2">
+            <i class="fa-solid fa-save"></i> <span>Simpan Data</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="imageModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4" onclick="closeImageModal()">
+      <img id="previewImg" src="" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl border border-slate-700" onclick="event.stopPropagation()" />
+      <button class="absolute top-6 right-6 text-white bg-slate-800 hover:bg-slate-700 w-10 h-10 rounded-full flex items-center justify-center transition" onclick="closeImageModal()">
+        <i class="fa-solid fa-times text-xl"></i>
+      </button>
+    </div>
+
+    <script>
+      let rentals = [];
+      let currentTab = 'active';
+      let currentEditId = null;
+
+      const savedData = localStorage.getItem('playboxData');
+      if (savedData) {
+        try {
+          rentals = JSON.parse(savedData);
+        } catch (error) {
+          console.error('Gagal memuat data', error);
+          rentals = [];
+        }
+      }
+
+      function formatPhoneForWA(phone) {
+        const raw = String(phone || '').replace(/\D/g, '');
+        let cleaned = raw;
+        if (cleaned.startsWith('0')) {
+          cleaned = '62' + cleaned.substring(1);
+        } else if (cleaned.startsWith('8')) {
+          cleaned = '62' + cleaned;
+        }
+        return cleaned;
+      }
+
+      function saveDataLocal() {
+        localStorage.setItem('playboxData', JSON.stringify(rentals));
+        updateStats();
+      }
+
+      function formatISOLocal(date) {
+        const tzOffset = date.getTimezoneOffset() * 60000;
+        return new Date(date - tzOffset).toISOString().slice(0, 16);
+      }
+
+      function switchTab(tab) {
+        currentTab = tab;
+        const activeTab = document.getElementById('tab-active');
+        const historyTab = document.getElementById('tab-history');
+        activeTab.className = tab === 'active'
+          ? 'px-4 py-2 text-sm transition-colors duration-200 tab-active flex items-center gap-2'
+          : 'px-4 py-2 text-sm transition-colors duration-200 tab-inactive flex items-center gap-2';
+        historyTab.className = tab === 'history'
+          ? 'px-4 py-2 text-sm transition-colors duration-200 tab-active flex items-center gap-2'
+          : 'px-4 py-2 text-sm transition-colors duration-200 tab-inactive flex items-center gap-2';
+        renderTable();
+      }
+
+      function renderTable() {
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const tbody = document.getElementById('rentalTableBody');
+        const emptyState = document.getElementById('emptyState');
+        tbody.innerHTML = '';
+
+        const filteredRentals = rentals.filter((r) => {
+          const matchTab = currentTab === 'active' ? r.status === 'Aktif' : r.status === 'Selesai';
+          const matchSearch = (r.name || '').toLowerCase().includes(search) || (r.unit || '').toLowerCase().includes(search);
+          return matchTab && matchSearch;
+        });
+
+        if (filteredRentals.length === 0) {
+          emptyState.classList.remove('hidden');
+          updateStats();
+          return;
+        }
+
+        emptyState.classList.add('hidden');
+
+        filteredRentals.forEach((r) => {
+          const returnDate = new Date(r.returnTime);
+          const now = new Date();
+
+          let timeWarning = '';
+          let timeColor = 'text-slate-400';
+          if (r.status === 'Aktif') {
+            const diffMs = returnDate - now;
+            const diffHrs = diffMs / (1000 * 60 * 60);
+            if (diffHrs < 0) {
+              timeWarning = '<span class="mt-1.5 inline-block px-2 py-0.5 bg-red-900/50 text-red-400 text-[10px] font-bold rounded border border-red-800/50 animate-pulse">WAKTU HABIS!</span>';
+              timeColor = 'text-red-400 font-medium';
+            } else if (diffHrs <= 1) {
+              timeWarning = '<span class="mt-1.5 inline-block px-2 py-0.5 bg-amber-900/50 text-amber-400 text-[10px] font-bold rounded border border-amber-800/50">Sisa < 1 Jam</span>';
+              timeColor = 'text-amber-400';
+            }
+          }
+
+          let imgBadge = '';
+          if (r.collateralImage) {
+            imgBadge = `<button onclick="showImage('${r.id}')" class="ml-2 px-2 py-1 bg-indigo-900/40 text-indigo-400 border border-indigo-800/50 rounded text-[10px] font-medium hover:bg-indigo-800/60 transition"><i class="fa-solid fa-image"></i> Lihat</button>`;
+          }
+
+          let actionButtons = '';
+          if (r.status === 'Aktif') {
+            const formattedPhone = formatPhoneForWA(r.phone);
+            const dateStr = returnDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            const timeStr = returnDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }).replace('.', ':');
+            const waText = encodeURIComponent(`Halo kak ${r.name}, pengingat waktu sewa ${r.unit} akan segera berakhir pada tanggal ${dateStr} jam ${timeStr}. Apakah ingin diperpanjang?`);
+            const waLink = `https://api.whatsapp.com/send?phone=${formattedPhone}&text=${waText}`;
+
+            actionButtons = `
+              <div class="flex items-center justify-center gap-2">
+                <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-lg bg-emerald-900/40 text-emerald-500 hover:bg-emerald-800 flex items-center justify-center transition border border-emerald-800/50" title="Chat WhatsApp">
+                  <i class="fa-brands fa-whatsapp text-lg"></i>
+                </a>
+                <button onclick="editRental(${r.id})" class="w-8 h-8 rounded-lg bg-amber-900/40 text-amber-500 hover:bg-amber-800 flex items-center justify-center transition border border-amber-800/50" title="Edit / Perpanjang Sewa">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <button onclick="finishRental(${r.id})" class="w-8 h-8 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center transition shadow-lg shadow-indigo-600/20" title="Selesaikan & Pindah ke Riwayat">
+                  <i class="fa-solid fa-check"></i>
+                </button>
+                <button onclick="soundTracker('${r.unit}')}" class="w-8 h-8 rounded-lg bg-red-900/40 text-red-500 hover:bg-red-800 flex items-center justify-center transition border border-red-800/50" title="Bunyikan Traker">
+                  <i class="fa-solid fa-bullhorn"></i>
+                </button>
+              </div>
+            `;
+          } else {
+            actionButtons = `
+              <div class="flex items-center justify-center gap-2">
+                <span class="px-2 py-1 bg-slate-800 text-slate-400 text-[10px] rounded border border-slate-700">Telah Dikembalikan</span>
+                <button onclick="editRental(${r.id})" class="text-slate-500 hover:text-amber-400 p-1 transition" title="Edit Data"><i class="fa-solid fa-pen"></i></button>
+                <button onclick="deleteRental(${r.id})" class="text-slate-500 hover:text-red-400 p-1 transition" title="Hapus Permanen"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            `;
+          }
+
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-slate-800/30 transition-colors group';
+          tr.innerHTML = `
+            <td class="p-4 align-top">
+              <div class="font-semibold text-slate-200 text-sm mb-0.5">${r.name}</div>
+              <div class="text-xs text-slate-500 flex items-center gap-1.5"><i class="fa-brands fa-whatsapp text-emerald-500"></i> ${r.phone}</div>
+              <div class="mt-2 flex items-center">
+                <span class="px-2 py-0.5 bg-slate-800 border border-slate-700 rounded text-[10px] font-medium text-slate-400">${r.collateral}</span>
+                ${imgBadge}
+              </div>
+            </td>
+            <td class="p-4 align-top">
+              <div class="text-sm font-medium ${r.unit.includes('PS 4') ? 'text-blue-400' : 'text-slate-300'}">${r.unit}</div>
+              <div class="text-xs text-slate-500 mt-0.5">${r.package}</div>
+            </td>
+            <td class="p-4 align-top text-xs">
+              <div class="flex items-center text-slate-400 mb-1.5">
+                <i class="fa-solid fa-play mr-2 text-[10px] opacity-70 w-3"></i>
+                ${new Date(r.startTime).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })}
+              </div>
+              <div class="flex items-center ${timeColor}">
+                <i class="fa-solid fa-flag-checkered mr-2 text-[10px] opacity-70 w-3"></i>
+                ${returnDate.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })}
+              </div>
+              ${timeWarning}
+            </td>
+            <td class="p-4 align-top font-bold text-emerald-400 text-sm">
+              Rp ${Number(r.price || 0).toLocaleString('id-ID')}
+            </td>
+            <td class="p-4 align-top text-center">
+              ${actionButtons}
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        updateStats();
+      }
+
+      function updateFormLogic() {
+        const unit = document.getElementById('unitSelect').value;
+        const packageType = document.getElementById('packageSelect').value;
+        const durationInput = document.getElementById('durationHours');
+        let duration = parseInt(durationInput.value) || 1;
+        const startTimeInput = document.getElementById('startTime').value;
+
+        let pricePerHour = unit.includes('PS 4') ? 15000 : 10000;
+        let totalPrice = 0;
+
+        if (packageType === '12') {
+          duration = 12;
+          durationInput.value = 12;
+          durationInput.disabled = true;
+          totalPrice = unit.includes('PS 4') ? 90000 : 70000;
+        } else if (packageType === '24') {
+          duration = 24;
+          durationInput.value = 24;
+          durationInput.disabled = true;
+          totalPrice = unit.includes('PS 4') ? 120000 : 90000;
+        } else {
+          durationInput.disabled = false;
+          totalPrice = pricePerHour * duration;
+        }
+
+        document.getElementById('rentalPrice').value = totalPrice;
+
+        if (startTimeInput && duration > 0) {
+          const start = new Date(startTimeInput);
+          start.setHours(start.getHours() + duration);
+          document.getElementById('returnTime').value = formatISOLocal(start);
+        }
+      }
+
+      function openAddModal() {
+        currentEditId = null;
+        document.getElementById('rentalForm').reset();
+
+        document.getElementById('modalTitleText').innerHTML = '<i class="fa-solid fa-file-signature text-indigo-400"></i> Catat Penyewa Baru';
+        const submitBtn = document.getElementById('modalSubmitBtn');
+        submitBtn.innerHTML = '<i class="fa-solid fa-save"></i> <span>Simpan Data</span>';
+        submitBtn.className = 'px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-medium transition shadow-lg shadow-indigo-600/20 flex items-center gap-2';
+
+        document.getElementById('startTime').value = formatISOLocal(new Date());
+        document.getElementById('durationHours').disabled = false;
+        document.getElementById('durationHours').value = 1;
+        document.getElementById('packageSelect').value = 'custom';
+        document.getElementById('unitSelect').value = 'PS 4 Slim 1TB';
+        updateFormLogic();
+        document.getElementById('rentalModal').classList.remove('hidden');
+      }
+
+      function editRental(id) {
+        currentEditId = id;
+        const r = rentals.find((x) => x.id === id);
+        if (!r) return;
+
+        document.getElementById('modalTitleText').innerHTML = '<i class="fa-solid fa-pen-to-square text-amber-400"></i> Edit Data / Perpanjang Sewa';
+        const submitBtn = document.getElementById('modalSubmitBtn');
+        submitBtn.innerHTML = '<i class="fa-solid fa-save"></i> <span>Update Data</span>';
+        submitBtn.className = 'px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-sm font-medium transition shadow-lg shadow-amber-600/20 flex items-center gap-2';
+
+        document.getElementById('custName').value = r.name;
+        document.getElementById('custPhone').value = r.phone;
+        document.getElementById('unitSelect').value = r.unit;
+        document.getElementById('collateralSelect').value = r.collateral;
+
+        let pkg = 'custom';
+        if (r.package === 'Paket 12 Jam') pkg = '12';
+        else if (r.package === 'Paket 24 Jam') pkg = '24';
+        document.getElementById('packageSelect').value = pkg;
+
+        document.getElementById('startTime').value = r.startTime;
+
+        const start = new Date(r.startTime);
+        const returnT = new Date(r.returnTime);
+        const diff = Math.round((returnT - start) / 3600000);
+        document.getElementById('durationHours').value = diff > 0 ? diff : 1;
+        document.getElementById('durationHours').disabled = pkg !== 'custom';
+        document.getElementById('returnTime').value = r.returnTime;
+        document.getElementById('rentalPrice').value = r.price;
+
+        document.getElementById('rentalModal').classList.remove('hidden');
+      }
+
+      function closeAddModal() {
+        document.getElementById('rentalModal').classList.add('hidden');
+        currentEditId = null;
+      }
+
+      function saveRental(event) {
+        event.preventDefault();
+
+        const fileInput = document.getElementById('collateralImage');
+        const file = fileInput.files[0];
+
+        if (file) {
+          const reader = new FileReader();
+          reader.onloadend = function () {
+            finalizeSave(reader.result);
+          };
+          reader.readAsDataURL(file);
+        } else {
+          finalizeSave(null);
+        }
+      }
+
+      function finalizeSave(imageBase64) {
+        const unit = document.getElementById('unitSelect').value;
+        const packageType = document.getElementById('packageSelect').value;
+        const duration = Number(document.getElementById('durationHours').value) || 1;
+
+        const packageName = packageType === 'custom' ? `Sewa ${duration} Jam` : `Paket ${packageType} Jam`;
+
+        if (currentEditId) {
+          const index = rentals.findIndex((r) => r.id === currentEditId);
+          if (index !== -1) {
+            rentals[index].name = document.getElementById('custName').value;
+            rentals[index].phone = document.getElementById('custPhone').value;
+            rentals[index].unit = unit;
+            rentals[index].package = packageName;
+            rentals[index].collateral = document.getElementById('collateralSelect').value;
+            if (imageBase64) rentals[index].collateralImage = imageBase64;
+            rentals[index].price = Number(document.getElementById('rentalPrice').value);
+            rentals[index].startTime = document.getElementById('startTime').value;
+            rentals[index].returnTime = document.getElementById('returnTime').value;
+          }
+        } else {
+          const newRental = {
+            id: Date.now(),
+            name: document.getElementById('custName').value,
+            phone: document.getElementById('custPhone').value,
+            unit,
+            package: packageName,
+            collateral: document.getElementById('collateralSelect').value,
+            collateralImage: imageBase64,
+            price: Number(document.getElementById('rentalPrice').value),
+            startTime: document.getElementById('startTime').value,
+            returnTime: document.getElementById('returnTime').value,
+            status: 'Aktif',
+            createdAt: new Date().toISOString()
+          };
+          rentals.unshift(newRental);
+        }
+
+        saveDataLocal();
+        closeAddModal();
+        if (!currentEditId) {
+          switchTab('active');
+        } else {
+          renderTable();
+        }
+      }
+
+      function finishRental(id) {
+        const index = rentals.findIndex((r) => r.id === id);
+        if (index !== -1) {
+          rentals[index].status = 'Selesai';
+          saveDataLocal();
+          switchTab('history');
+        }
+      }
+
+      function deleteRental(id) {
+        if (confirm('Hapus data sewa ini secara permanen?')) {
+          rentals = rentals.filter((r) => r.id !== id);
+          saveDataLocal();
+          renderTable();
+        }
+      }
+
+      function showImage(id) {
+        const rental = rentals.find((r) => r.id == id);
+        if (rental && rental.collateralImage) {
+          document.getElementById('previewImg').src = rental.collateralImage;
+          document.getElementById('imageModal').classList.remove('hidden');
+        }
+      }
+
+      function closeImageModal() {
+        document.getElementById('imageModal').classList.add('hidden');
+      }
+
+      function updateStats() {
+        const activeRentals = rentals.filter((r) => r.status === 'Aktif').length;
+        document.getElementById('statActive').innerText = activeRentals;
+
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+
+        const income = rentals.reduce((sum, r) => {
+          const rDate = new Date(r.createdAt || r.startTime);
+          if (rDate.getMonth() === currentMonth && rDate.getFullYear() === currentYear) {
+            return sum + Number(r.price || 0);
+          }
+          return sum;
+        }, 0);
+
+        document.getElementById('statIncome').innerText = `Rp ${income.toLocaleString('id-ID')}`;
+      }
+
+      function soundTracker(unitName) {
+        alert(`[SIMULASI] Sinyal suara dikirim ke perangkat pelacak di dalam koper ${unitName}. Traker akan berbunyi nyaring!`);
+      }
+
+      function exportData() {
+        const dataStr = JSON.stringify(rentals);
+        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+        const exportFileDefaultName = 'playbox_backup_' + new Date().toISOString().slice(0, 10) + '.json';
+
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        linkElement.click();
+      }
+
+      function importData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          try {
+            const imported = JSON.parse(e.target.result);
+            if (Array.isArray(imported)) {
+              rentals = imported;
+              saveDataLocal();
+              renderTable();
+              alert('Data berhasil dipulihkan!');
+            } else {
+              alert('Format file tidak valid.');
+            }
+          } catch (error) {
+            alert('Gagal membaca file backup.');
+          }
+        };
+        reader.readAsText(file);
+        event.target.value = '';
+      }
+
+      renderTable();
+    </script>
+  </body>
+</html>
