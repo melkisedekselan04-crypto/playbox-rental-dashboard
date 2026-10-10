@@ -10,23 +10,13 @@
     <style>
       body {
         font-family: 'Inter', sans-serif;
-        background-color: #020617;
-        color: #f8fafc;
+        background: #020617;
+        color: #e2e8f0;
       }
-      ::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #0f172a;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #334155;
-        border-radius: 10px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #475569;
-      }
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: #0f172a; }
+      ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+      ::-webkit-scrollbar-thumb:hover { background: #475569; }
       .glass-panel {
         background: rgba(15, 23, 42, 0.7);
         backdrop-filter: blur(12px);
@@ -41,9 +31,7 @@
         color: #64748b;
         border-bottom: 2px solid transparent;
       }
-      .tab-inactive:hover {
-        color: #cbd5e1;
-      }
+      .tab-inactive:hover { color: #cbd5e1; }
     </style>
   </head>
   <body class="min-h-screen text-slate-200 p-4 md:p-6 lg:p-8">
@@ -59,10 +47,10 @@
           </div>
         </div>
         <div class="flex gap-2 w-full md:w-auto">
-          <button onclick="exportData()" class="flex-1 md:flex-none px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium rounded-xl transition flex items-center justify-center gap-2 border border-slate-700">
+          <button onclick="exportData()" class="flex-1 md:flex-none px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium rounded-xl transition flex items-center justify-center gap-2">
             <i class="fa-solid fa-download"></i> Backup
           </button>
-          <button onclick="document.getElementById('importFile').click()" class="flex-1 md:flex-none px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium rounded-xl transition flex items-center justify-center gap-2 border border-slate-700">
+          <button onclick="document.getElementById('importFile').click()" class="flex-1 md:flex-none px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium rounded-xl transition flex items-center justify-center gap-2">
             <i class="fa-solid fa-upload"></i> Import
           </button>
           <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(event)" />
@@ -116,7 +104,7 @@
           <div class="flex items-center gap-3 w-full md:w-auto">
             <div class="relative flex-1 md:w-64">
               <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 text-sm"></i>
-              <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="Cari nama pelanggan..." class="w-full bg-slate-950 border border-slate-700 pl-9 pr-4 py-2 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition text-slate-200" />
+              <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="Cari nama pelanggan..." class="w-full bg-slate-950 border border-slate-700 pl-9 pr-4 py-2 rounded-xl text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-indigo-500" />
             </div>
             <button onclick="openAddModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-lg shadow-indigo-600/20 whitespace-nowrap flex items-center gap-2">
               <i class="fa-solid fa-plus"></i> <span class="hidden sm:inline">Sewa Baru</span>
@@ -174,13 +162,13 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-medium text-slate-400 mb-1.5">Nama Penyewa</label>
-                <input type="text" id="custName" required placeholder="Contoh: Budi Santoso" class="w-full bg-slate-950 border border-slate-700 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition text-white placeholder-slate-600" />
+                <input type="text" id="custName" required placeholder="Contoh: Budi Santoso" class="w-full bg-slate-950 border border-slate-700 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition" />
               </div>
               <div>
                 <label class="block text-xs font-medium text-slate-400 mb-1.5">Nomor WhatsApp</label>
                 <div class="relative">
                   <i class="fa-brands fa-whatsapp absolute left-3 top-1/2 transform -translate-y-1/2 text-emerald-500 text-lg"></i>
-                  <input type="tel" id="custPhone" required placeholder="08123456789" class="w-full bg-slate-950 border border-slate-700 pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition text-white placeholder-slate-600" />
+                  <input type="tel" id="custPhone" required placeholder="08123456789" class="w-full bg-slate-950 border border-slate-700 pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition" />
                 </div>
               </div>
             </div>
@@ -208,18 +196,18 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-medium text-slate-400 mb-1.5">Waktu Mulai Pinjam</label>
-                <input type="datetime-local" id="startTime" onchange="updateFormLogic()" required class="w-full bg-slate-950 border border-slate-700 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition text-white" style="color-scheme: dark;" />
+                <input type="datetime-local" id="startTime" onchange="updateFormLogic()" required class="w-full bg-slate-950 border border-slate-700 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition" />
               </div>
               <div>
                 <label class="block text-xs font-medium text-slate-400 mb-1.5">Durasi (Jam) <span class="text-indigo-400">*</span></label>
-                <input type="number" id="durationHours" min="1" value="1" oninput="updateFormLogic()" required placeholder="Contoh: 4" class="w-full bg-slate-950 border border-slate-700 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition text-white" />
+                <input type="number" id="durationHours" min="1" value="1" oninput="updateFormLogic()" required placeholder="Contoh: 4" class="w-full bg-slate-950 border border-slate-700 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition" />
               </div>
             </div>
 
             <div class="bg-slate-950/50 border border-slate-800 p-4 rounded-xl grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-[11px] font-semibold text-slate-500 mb-1 tracking-wide uppercase">Estimasi Kembali (Otomatis)</label>
-                <input type="datetime-local" id="returnTime" required class="w-full bg-transparent border-0 px-0 py-1 text-sm text-amber-400 font-medium focus:outline-none focus:ring-0" style="color-scheme: dark;" readonly tabindex="-1" />
+                <input type="datetime-local" id="returnTime" required class="w-full bg-transparent border-0 px-0 py-1 text-sm text-amber-400 font-medium focus:outline-none focus:ring-0" style="color-scheme: dark;" />
               </div>
               <div>
                 <label class="block text-[11px] font-semibold text-slate-500 mb-1 tracking-wide uppercase">Total Biaya (Bisa diedit)</label>
@@ -245,7 +233,7 @@
               <div>
                 <label class="block text-xs font-medium text-slate-400 mb-1.5">Foto Dokumen Jaminan (Opsional)</label>
                 <div class="relative">
-                  <input type="file" id="collateralImage" accept="image/*" class="w-full text-sm text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-300 hover:file:bg-slate-700 transition cursor-pointer" />
+                  <input type="file" id="collateralImage" accept="image/*" class="w-full text-sm text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-slate-700 file:text-white" />
                 </div>
               </div>
             </div>
@@ -268,35 +256,108 @@
       </button>
     </div>
 
-    <script>
+    <script type="module">
+      import { createClient } from '@supabase/supabase-js';
+
+      const storageKey = 'playboxData';
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+      const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
+
       let rentals = [];
       let currentTab = 'active';
       let currentEditId = null;
 
-      const savedData = localStorage.getItem('playboxData');
-      if (savedData) {
-        try {
-          rentals = JSON.parse(savedData);
-        } catch (error) {
-          console.error('Gagal memuat data', error);
-          rentals = [];
+      function normalizeRental(row) {
+        return {
+          id: String(row.id),
+          name: row.name || '',
+          phone: row.phone || '',
+          unit: row.unit || 'PS 4 Slim 1TB',
+          package: row.package || 'Sewa 1 Jam',
+          collateral: row.collateral || 'KTP Asli',
+          collateralImage: row.collateral_image || row.collateralImage || null,
+          price: Number(row.price || 0),
+          startTime: row.start_time || row.startTime || new Date().toISOString(),
+          returnTime: row.return_time || row.returnTime || new Date().toISOString(),
+          status: row.status || 'Aktif',
+          createdAt: row.created_at || row.createdAt || new Date().toISOString(),
+        };
+      }
+
+      function toSupabaseRow(r) {
+        return {
+          id: String(r.id),
+          name: r.name,
+          phone: r.phone,
+          unit: r.unit,
+          package: r.package,
+          collateral: r.collateral,
+          collateral_image: r.collateralImage,
+          price: Number(r.price || 0),
+          start_time: r.startTime,
+          return_time: r.returnTime,
+          status: r.status,
+          created_at: r.createdAt,
+        };
+      }
+
+      function isSupabaseEnabled() {
+        return !!supabase;
+      }
+
+      async function loadRentals() {
+        if (isSupabaseEnabled()) {
+          try {
+            const { data, error } = await supabase.from('rentals').select('*').order('created_at', { ascending: false });
+            if (!error && data) {
+              rentals = data.map(normalizeRental);
+            } else {
+              console.error('Supabase fetch error:', error);
+              rentals = [];
+            }
+          } catch (error) {
+            console.error('Supabase unavailable:', error);
+            rentals = [];
+          }
+        } else {
+          const savedData = localStorage.getItem(storageKey);
+          if (savedData) {
+            try {
+              rentals = JSON.parse(savedData);
+            } catch (error) {
+              console.error('Gagal memuat data lokal', error);
+              rentals = [];
+            }
+          }
         }
+
+        renderTable();
+        updateStats();
+      }
+
+      async function syncToSupabase() {
+        if (!isSupabaseEnabled()) return;
+        const payload = rentals.map(toSupabaseRow);
+
+        const { error } = await supabase.from('rentals').upsert(payload, { onConflict: 'id' });
+        if (error) {
+          console.error('Gagal sinkron ke Supabase:', error);
+        }
+      }
+
+      function saveDataLocal() {
+        localStorage.setItem(storageKey, JSON.stringify(rentals));
+        syncToSupabase();
+        updateStats();
       }
 
       function formatPhoneForWA(phone) {
         const raw = String(phone || '').replace(/\D/g, '');
         let cleaned = raw;
-        if (cleaned.startsWith('0')) {
-          cleaned = '62' + cleaned.substring(1);
-        } else if (cleaned.startsWith('8')) {
-          cleaned = '62' + cleaned;
-        }
+        if (cleaned.startsWith('0')) cleaned = '62' + cleaned.substring(1);
+        else if (cleaned.startsWith('8')) cleaned = '62' + cleaned;
         return cleaned;
-      }
-
-      function saveDataLocal() {
-        localStorage.setItem('playboxData', JSON.stringify(rentals));
-        updateStats();
       }
 
       function formatISOLocal(date) {
@@ -357,7 +418,7 @@
 
           let imgBadge = '';
           if (r.collateralImage) {
-            imgBadge = `<button onclick="showImage('${r.id}')" class="ml-2 px-2 py-1 bg-indigo-900/40 text-indigo-400 border border-indigo-800/50 rounded text-[10px] font-medium hover:bg-indigo-800/60 transition"><i class="fa-solid fa-image"></i> Lihat</button>`;
+            imgBadge = `<button onclick="showImage('${r.id}')" class="ml-2 px-2 py-1 bg-indigo-900/40 text-indigo-400 border border-indigo-800/50 rounded text-[10px] font-medium hover:bg-indigo-800 transition">Foto</button>`;
           }
 
           let actionButtons = '';
@@ -370,16 +431,16 @@
 
             actionButtons = `
               <div class="flex items-center justify-center gap-2">
-                <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-lg bg-emerald-900/40 text-emerald-500 hover:bg-emerald-800 flex items-center justify-center transition border border-emerald-800/50" title="Chat WhatsApp">
+                <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-lg bg-emerald-900/40 text-emerald-500 hover:bg-emerald-800 flex items-center justify-center transition border border-emerald-800/50">
                   <i class="fa-brands fa-whatsapp text-lg"></i>
                 </a>
-                <button onclick="editRental(${r.id})" class="w-8 h-8 rounded-lg bg-amber-900/40 text-amber-500 hover:bg-amber-800 flex items-center justify-center transition border border-amber-800/50" title="Edit / Perpanjang Sewa">
+                <button onclick="editRental('${r.id}')" class="w-8 h-8 rounded-lg bg-amber-900/40 text-amber-500 hover:bg-amber-800 flex items-center justify-center transition border border-amber-800/50">
                   <i class="fa-solid fa-pen"></i>
                 </button>
-                <button onclick="finishRental(${r.id})" class="w-8 h-8 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center transition shadow-lg shadow-indigo-600/20" title="Selesaikan & Pindah ke Riwayat">
+                <button onclick="finishRental('${r.id}')" class="w-8 h-8 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center transition shadow-lg shadow-indigo-600/20">
                   <i class="fa-solid fa-check"></i>
                 </button>
-                <button onclick="soundTracker('${r.unit}')" class="w-8 h-8 rounded-lg bg-red-900/40 text-red-500 hover:bg-red-800 flex items-center justify-center transition border border-red-800/50" title="Bunyikan Traker">
+                <button onclick="soundTracker('${r.unit}')" class="w-8 h-8 rounded-lg bg-red-900/40 text-red-500 hover:bg-red-800 flex items-center justify-center transition border border-red-800/50">
                   <i class="fa-solid fa-bullhorn"></i>
                 </button>
               </div>
@@ -388,8 +449,8 @@
             actionButtons = `
               <div class="flex items-center justify-center gap-2">
                 <span class="px-2 py-1 bg-slate-800 text-slate-400 text-[10px] rounded border border-slate-700">Telah Dikembalikan</span>
-                <button onclick="editRental(${r.id})" class="text-slate-500 hover:text-amber-400 p-1 transition" title="Edit Data"><i class="fa-solid fa-pen"></i></button>
-                <button onclick="deleteRental(${r.id})" class="text-slate-500 hover:text-red-400 p-1 transition" title="Hapus Permanen"><i class="fa-solid fa-trash"></i></button>
+                <button onclick="editRental('${r.id}')" class="text-slate-500 hover:text-amber-400 p-1 transition" title="Edit Data"><i class="fa-solid fa-pen"></i></button>
+                <button onclick="deleteRental('${r.id}')" class="text-slate-500 hover:text-red-400 p-1 transition" title="Hapus Permanen"><i class="fa-solid fa-trash"></i></button>
               </div>
             `;
           }
@@ -420,12 +481,8 @@
               </div>
               ${timeWarning}
             </td>
-            <td class="p-4 align-top font-bold text-emerald-400 text-sm">
-              Rp ${Number(r.price || 0).toLocaleString('id-ID')}
-            </td>
-            <td class="p-4 align-top text-center">
-              ${actionButtons}
-            </td>
+            <td class="p-4 align-top font-bold text-emerald-400 text-sm">Rp ${Number(r.price || 0).toLocaleString('id-ID')}</td>
+            <td class="p-4 align-top text-center">${actionButtons}</td>
           `;
           tbody.appendChild(tr);
         });
@@ -487,7 +544,7 @@
 
       function editRental(id) {
         currentEditId = id;
-        const r = rentals.find((x) => x.id === id);
+        const r = rentals.find((x) => String(x.id) === String(id));
         if (!r) return;
 
         document.getElementById('modalTitleText').innerHTML = '<i class="fa-solid fa-pen-to-square text-amber-400"></i> Edit Data / Perpanjang Sewa';
@@ -544,11 +601,10 @@
         const unit = document.getElementById('unitSelect').value;
         const packageType = document.getElementById('packageSelect').value;
         const duration = Number(document.getElementById('durationHours').value) || 1;
-
         const packageName = packageType === 'custom' ? `Sewa ${duration} Jam` : `Paket ${packageType} Jam`;
 
         if (currentEditId) {
-          const index = rentals.findIndex((r) => r.id === currentEditId);
+          const index = rentals.findIndex((r) => String(r.id) === String(currentEditId));
           if (index !== -1) {
             rentals[index].name = document.getElementById('custName').value;
             rentals[index].phone = document.getElementById('custPhone').value;
@@ -562,7 +618,7 @@
           }
         } else {
           const newRental = {
-            id: Date.now(),
+            id: Date.now().toString(),
             name: document.getElementById('custName').value,
             phone: document.getElementById('custPhone').value,
             unit,
@@ -573,7 +629,7 @@
             startTime: document.getElementById('startTime').value,
             returnTime: document.getElementById('returnTime').value,
             status: 'Aktif',
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
           };
           rentals.unshift(newRental);
         }
@@ -588,7 +644,7 @@
       }
 
       function finishRental(id) {
-        const index = rentals.findIndex((r) => r.id === id);
+        const index = rentals.findIndex((r) => String(r.id) === String(id));
         if (index !== -1) {
           rentals[index].status = 'Selesai';
           saveDataLocal();
@@ -598,14 +654,14 @@
 
       function deleteRental(id) {
         if (confirm('Hapus data sewa ini secara permanen?')) {
-          rentals = rentals.filter((r) => r.id !== id);
+          rentals = rentals.filter((r) => String(r.id) !== String(id));
           saveDataLocal();
           renderTable();
         }
       }
 
       function showImage(id) {
-        const rental = rentals.find((r) => r.id == id);
+        const rental = rentals.find((r) => String(r.id) === String(id));
         if (rental && rental.collateralImage) {
           document.getElementById('previewImg').src = rental.collateralImage;
           document.getElementById('imageModal').classList.remove('hidden');
@@ -658,7 +714,7 @@
           try {
             const imported = JSON.parse(e.target.result);
             if (Array.isArray(imported)) {
-              rentals = imported;
+              rentals = imported.map(normalizeRental);
               saveDataLocal();
               renderTable();
               alert('Data berhasil dipulihkan!');
@@ -673,7 +729,21 @@
         event.target.value = '';
       }
 
-      renderTable();
+      window.exportData = exportData;
+      window.importData = importData;
+      window.switchTab = switchTab;
+      window.openAddModal = openAddModal;
+      window.closeAddModal = closeAddModal;
+      window.updateFormLogic = updateFormLogic;
+      window.saveRental = saveRental;
+      window.editRental = editRental;
+      window.finishRental = finishRental;
+      window.deleteRental = deleteRental;
+      window.showImage = showImage;
+      window.closeImageModal = closeImageModal;
+      window.soundTracker = soundTracker;
+
+      loadRentals();
     </script>
   </body>
 </html>
